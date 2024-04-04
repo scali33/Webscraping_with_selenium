@@ -1,6 +1,7 @@
 from typing import List
 from selenium.webdriver.support.ui import Select
 
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from locators.quotes_page_locators import QuotesPageLocators
 from parsers.quote import QuoteParser
@@ -37,3 +38,17 @@ class QuoetesPage:
 
     def select_tag(self, tag_name: str):
         self.tags_dropdown.select_by_visible_text(tag_name)
+
+    def search_for_qutoes(self,author_name: str, tage_name: str ) -> List[QuoteParser]:
+        self.select_author(author_name)
+        try:
+            self.select_tag(tage_name)
+        except NoSuchElementException:
+            raise InvlidtagForAuthorError(
+                f"Author '{author_name}' does not have any quote tagged with '{tage_name}'."
+            )
+        self.search_button.click()
+        return self.quotes
+
+class InvlidtagForAuthorError(ValueError):
+    pass
